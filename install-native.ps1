@@ -26,7 +26,8 @@ Write-Host "[OK] Dendrite" -ForegroundColor Green
 
 # Generate key
 Write-Host "Generating config..." -ForegroundColor Cyan
-python -c "import os,base64; open('$H\config\signing.key','w').write('ed25519 '+base64.b64encode(os.urandom(32)).decode())"
+$keyPath = "$H\config\signing.key" -replace '\\','/'
+python -c "import os,base64; open('$keyPath','w').write('ed25519 '+base64.b64encode(os.urandom(32)).decode())"
 $key = (Get-Content "$H\config\signing.key" -Raw).Trim()
 $dd = $H -replace '\\','/'
 
