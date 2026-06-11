@@ -1,6 +1,6 @@
 # yappfy — Your Chats. Your Server. Your Rules.
 
-**Viber + Telegram + WhatsApp in one interface. Self-hosted. Open Source. Free.**
+**All messengers in one interface. Self-hosted. Open Source. Free.**
 
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-brightgreen)](https://docs.docker.com/)
@@ -11,21 +11,25 @@
 
 ## What is yappfy?
 
-yappfy unifies your messengers into **one client**. No cloud service, no data sharing — everything runs on **your server**.
+yappfy unifies **all your messengers** into **one client**. No cloud service, no data sharing — everything runs on **your server**.
+
+| 💬 WhatsApp | 📱 Signal | ✈️ Telegram | 📞 Viber | 💼 Slack | 🎮 Discord |
+| 📧 Email | 🔵 Messenger | 📷 Instagram | 🍎 iMessage | 🟢 WeChat | 🟡 Snapchat |
+| 🟣 Teams | 🏢 Google Chat | 💬 SMS | 🐦 Twitter/X | | |
 
 ```
-┌────────────────────────────────────────┐
-│              Element Web               │  ← One client for everything
-├────────────────────────────────────────┤
-│            Matrix Synapse              │  ← Decentralized protocol
-├──────────┬──────────┬─────────────────┤
-│  Viber   │ Telegram │    WhatsApp     │  ← Bridges
-└──────────┴──────────┴─────────────────┘
+┌────────────────────────────────────────────────┐
+│                  Element Web                    │  ← One client for everything
+├────────────────────────────────────────────────┤
+│              Matrix Synapse                     │  ← Decentralized protocol
+├──────┬──────┬──────┬──────┬──────┬─────────────┤
+│WhatsApp│Signal│Telegram│Viber│Slack│ Discord …  │  ← 16+ Bridges
+└──────┴──────┴──────┴──────┴──────┴─────────────┘
 ```
 
 ## Features
 
-- 🔌 **3 messengers unified**: Viber, Telegram, WhatsApp
+- 🔌 **16+ messengers unified**: WhatsApp, Signal, Telegram, Viber, Slack, Discord, Facebook Messenger, Instagram, iMessage, WeChat, Snapchat, Teams, Google Chat, SMS, Twitter/X, Email
 - 🏠 **100% Self-Hosted**: Your data, your server
 - 🔒 **End-to-End Encryption**: Matrix E2EE
 - 📱 **All devices**: Element client for Web, Desktop, iOS, Android
@@ -65,19 +69,34 @@ docker compose logs mautrix-whatsapp
 ```
 → Scan QR code in WhatsApp
 
+### Signal
+```bash
+docker compose logs mautrix-signal
+```
+→ Link as companion device
+
 ### Viber
 1. Create a bot on the [Viber Admin Panel](https://partners.viber.com)
 2. Add the token to `config/mautrix-viber/config.yaml`
 3. `docker compose restart mautrix-viber`
+
+### Discord / Slack / Messenger / Instagram / iMessage / Teams / Google Chat
+More bridges available — see individual [mautrix docs](https://docs.mau.fi/bridges/).
 
 ## Architecture
 
 | Component | Technology | Purpose |
 |---|---|---|
 | **Matrix Server** | Synapse | Federated chat protocol |
-| **Viber Bridge** | mautrix-viber | Viber ↔ Matrix |
-| **Telegram Bridge** | mautrix-telegram | Telegram ↔ Matrix |
 | **WhatsApp Bridge** | mautrix-whatsapp | WhatsApp ↔ Matrix |
+| **Signal Bridge** | mautrix-signal | Signal ↔ Matrix |
+| **Telegram Bridge** | mautrix-telegram | Telegram ↔ Matrix |
+| **Viber Bridge** | mautrix-viber | Viber ↔ Matrix |
+| **Slack Bridge** | mautrix-slack | Slack ↔ Matrix |
+| **Discord Bridge** | mautrix-discord | Discord ↔ Matrix |
+| **Messenger Bridge** | mautrix-meta | Facebook/Instagram ↔ Matrix |
+| **iMessage Bridge** | mautrix-imessage | iMessage ↔ Matrix |
+| **Google Chat Bridge** | mautrix-googlechat | Google Chat ↔ Matrix |
 | **Client** | Element Web | Chat interface |
 | **Database** | PostgreSQL | Synapse storage |
 | **Cache** | Redis | Bridge performance |
@@ -86,7 +105,7 @@ docker compose logs mautrix-whatsapp
 ## System Requirements
 
 - **Minimum**: 2 GB RAM, 2 CPU cores
-- **Recommended**: 4 GB RAM, 4 CPU cores
+- **Recommended**: 4 GB RAM, 4 CPU cores (8+ GB for 10+ bridges)
 - Docker & Docker Compose
 - Domain (production) or localhost (testing)
 
@@ -104,9 +123,11 @@ Made with ❤️ in Austria.
 
 ## yappfy — Deine Chats. Dein Server. Deine Regeln.
 
-**Viber + Telegram + WhatsApp in einer Oberfläche. Self-hosted. Open Source. Kostenlos.**
+**Alle Messenger in einer Oberfläche. Self-hosted. Open Source. Kostenlos.**
 
-yappfy vereint deine Messenger in **einem Client**. Kein Cloud-Dienst, keine Datenweitergabe — alles läuft auf **deinem Server**.
+yappfy vereint **alle deine Messenger** in **einem Client**. Kein Cloud-Dienst, keine Datenweitergabe — alles läuft auf **deinem Server**.
+
+16+ Messenger: WhatsApp, Signal, Telegram, Viber, Slack, Discord, Facebook Messenger, Instagram, iMessage, WeChat, Snapchat, Teams, Google Chat, SMS, Twitter/X, E-Mail.
 
 ### Quick Start
 
