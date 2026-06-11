@@ -3,6 +3,7 @@
 **All messengers in one interface. Self-hosted. Open Source. Free.**
 
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
+[![Native](https://img.shields.io/badge/native-macOS_|_Windows-blue)](install-native.sh)
 [![Docker](https://img.shields.io/badge/docker-ready-brightgreen)](https://docs.docker.com/)
 [![Matrix](https://img.shields.io/badge/Matrix-000000?style=flat&logo=matrix&logoColor=white)](https://matrix.org)
 
@@ -47,10 +48,29 @@ yappfy unifies **all your messengers** into **one client**. No cloud service, no
 - 🏠 **100% Self-Hosted**: Your data, your server
 - 🔒 **End-to-End Encryption**: Matrix E2EE
 - 📱 **All devices**: Element client for Web, Desktop, iOS, Android
-- 🐳 **Docker**: `docker compose up` — done
+- 🐳 **Docker** or 🖥️ **Native**: Choose Docker or run directly on macOS/Windows/Linux
 - 🇪🇺 **DSGVO/GDPR compliant**: Privacy by design
+- ⚡ **Lightweight**: Dendrite (Go, SQLite) uses <100 MB RAM native
 
-## Quick Start (3 minutes)
+## Quick Start
+
+### Option A: Native (No Docker) 🖥️
+
+```bash
+# macOS / Linux
+chmod +x install-native.sh && ./install-native.sh
+
+# Windows (PowerShell)
+powershell -ExecutionPolicy Bypass -File install-native.ps1
+```
+
+→ Then run `~/.yappfy/start.sh` (or `start.bat` on Windows)
+→ Open **http://localhost:8009**
+
+Uses **Dendrite** (Go binary, SQLite) instead of Synapse+PostgreSQL.  
+No Docker, no external database — just one Go binary + Element Web.
+
+### Option B: Docker 🐳
 
 ```bash
 # 1. Clone
@@ -99,25 +119,33 @@ More bridges available — see individual [mautrix docs](https://docs.mau.fi/bri
 
 ## Architecture
 
-| Component | Technology | Purpose |
+| Component | Docker | Native |
 |---|---|---|
-| **Matrix Server** | Synapse | Federated chat protocol |
-| **WhatsApp Bridge** | mautrix-whatsapp | WhatsApp ↔ Matrix |
-| **Signal Bridge** | mautrix-signal | Signal ↔ Matrix |
-| **Telegram Bridge** | mautrix-telegram | Telegram ↔ Matrix |
-| **Viber Bridge** | mautrix-viber | Viber ↔ Matrix |
-| **Slack Bridge** | mautrix-slack | Slack ↔ Matrix |
-| **Discord Bridge** | mautrix-discord | Discord ↔ Matrix |
-| **Messenger Bridge** | mautrix-meta | Facebook/Instagram ↔ Matrix |
-| **iMessage Bridge** | mautrix-imessage | iMessage ↔ Matrix |
-| **Google Chat Bridge** | mautrix-googlechat | Google Chat ↔ Matrix |
-| **Client** | Element Web | Chat interface |
-| **Database** | PostgreSQL | Synapse storage |
-| **Cache** | Redis | Bridge performance |
-| **Proxy** | Nginx | SSL, routing |
+| **Matrix Server** | Synapse + PostgreSQL | Dendrite (Go, SQLite) |
+| **WhatsApp Bridge** | mautrix-whatsapp | mautrix-whatsapp |
+| **Signal Bridge** | mautrix-signal | mautrix-signal |
+| **Telegram Bridge** | mautrix-telegram | mautrix-telegram |
+| **Viber Bridge** | mautrix-viber | mautrix-viber |
+| **Slack Bridge** | mautrix-slack | mautrix-slack |
+| **Discord Bridge** | mautrix-discord | mautrix-discord |
+| **Messenger / IG** | mautrix-meta | mautrix-meta |
+| **iMessage Bridge** | mautrix-imessage | mautrix-imessage |
+| **Google Chat** | mautrix-googlechat | mautrix-googlechat |
+| **Client** | Element Web | Element Web |
+| **Database** | PostgreSQL | SQLite |
+| **Cache** | Redis | (none needed) |
+| **Proxy** | Nginx | (none needed) |
 
 ## System Requirements
 
+### Native (Dendrite)
+- **Minimum**: 512 MB RAM, 1 CPU core
+- **Recommended**: 1 GB RAM, 2 CPU cores
+- Go 1.21+ (for building; binary included)
+- Python 3.9+ (for serving Element Web)
+- macOS, Windows, or Linux
+
+### Docker
 - **Minimum**: 2 GB RAM, 2 CPU cores
 - **Recommended**: 4 GB RAM, 4 CPU cores (8+ GB for 10+ bridges)
 - Docker & Docker Compose
