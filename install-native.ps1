@@ -1,6 +1,6 @@
 # yappfy Native Installer for Windows
 # Run: powershell -ExecutionPolicy Bypass -File install-native.ps1
-# Downloads pre-built binaries — nothing to compile.
+# Builds Dendrite from source — one-time Go install needed.
 
 $ErrorActionPreference = "Stop"
 $YAPPFY_HOME = "$env:USERPROFILE\.yappfy"
@@ -12,14 +12,32 @@ Write-Host "    No Docker. No Cloud. Your Rules." -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 
+# ── Install Go (if missing) ──────────────────────────────────────
+$go = Get-Command go -ErrorAction SilentlyContinue
+if (-not $go) {
+    Write-Host "Go is not installed. Installing via winget..." -ForegroundColor Yellow
+    
+    $winget = Get-Command winget -ErrorAction SilentlyContinue
+    if ($winget) {
+        winget install GoLang.Go --silent --accept-package-agreements
+        Write-Host "[OK] Go installed! Restart PowerShell and run this script again." -ForegroundColor Green
+    } else {
+        Write-Host "Please install Go manually:" -ForegroundColor Red
+        Write-Host "  1. Download from https://go.dev/dl/" -ForegroundColor Yellow
+        Write-Host "  2. Run the installer (default settings are fine)" -ForegroundColor Yellow
+        Write-Host "  3. Restart PowerShell and run this script again" -ForegroundColor Yellow
+    }
+    pause
+    exit 0
+}
+Write-Host "[OK] Go $(& go version)" -ForegroundColor Green
+
 # ── Check Python ─────────────────────────────────────────────────
 $py = Get-Command python -ErrorAction SilentlyContinue
+if (-not $py) { $py = Get-Command python3 -ErrorAction SilentlyContinue }
 if (-not $py) {
-    $py = Get-Command python3 -ErrorAction SilentlyContinue
-}
-if (-not $py) {
-    Write-Host "WARNING: Python not found. Element Web won't start automatically." -ForegroundColor Yellow
-    Write-Host "Install from: https://python.org or Microsoft Store" -ForegroundColor Yellow
+    Write-Host "WARNING: Python not found. Element Web needs it." -ForegroundColor Yellow
+    Write-Host "Install from https://python.org (check 'Add Python to PATH')" -ForegroundColor Yellow
 }
 
 # ── Create directories ───────────────────────────────────────────
@@ -28,19 +46,32 @@ foreach ($d in $dirs) {
     New-Item -ItemType Directory -Force -Path "$YAPPFY_HOME\$d" | Out-Null
 }
 
-# ── Install Dendrite ─────────────────────────────────────────────
-Write-Host "Downloading Dendrite Matrix Server..." -ForegroundColor Cyan
-$DENDRITE_VERSION = "0.14.1"
-$DENDRITE_URL = "https://github.com/matrix-org/dendrite/releases/download/v$DENDRITE_VERSION/dendrite-windows-amd64.exe"
-$DENDRITE_PATH = "$YAPPFY_HOME\dendrite\dendrite.exe"
+# ── Build Dendrite from source ───────────────────────────────────
+Write-Host "Building Dendrite from source (2-3 min)..." -ForegroundColor Cyan
+Write-Host "  This compiles the Matrix server for your machine." -ForegroundColor Cyan
 
-Invoke-WebRequest -Uri $DENDRITE_URL -OutFile $DENDRITE_PATH
-Write-Host "[OK] Dendrite $DENDRITE_VERSION" -ForegroundColor Green
+Push-Location $YAPPFY_HOME
 
-# ── Generate Dendrite config ─────────────────────────────────────
+# Clone or update Dendrite
+if (Test-Path "dendrite-src") {
+    Push-Location dendrite-src
+    git pull --ff-only 2>$null
+    Pop-Location
+} else {
+    git clone --depth 1 https://github.com/matrix-org/dendrite.git dendrite-src 2>&1 | Out-Null
+}
+
+Push-Location dendrite-src
+go build -o "$YAPPFY_HOME\dendrite\dendrite.exe" ./cmd/dendrite
+Pop-Location
+Pop-Location
+
+Write-Host "[OK] Dendrite built successfully" -ForegroundColor Green
+
+# ── Generate config ──────────────────────────────────────────────
 Write-Host "Generating config..." -ForegroundColor Cyan
 Push-Location $YAPPFY_HOME
-& $DENDRITE_PATH --config config\dendrite.yaml --generate-config 2>$null
+& "$YAPPFY_HOME\dendrite\dendrite.exe" --config config\dendrite.yaml --generate-config 2>$null
 
 $config = Get-Content config\dendrite.yaml -Raw
 $config = $config -replace 'connection_string:.*', 'connection_string: file:yappfy.db?_journal_mode=WAL'
@@ -50,7 +81,7 @@ Pop-Location
 Write-Host "[OK] Config ready" -ForegroundColor Green
 
 # ── Install Element Web ──────────────────────────────────────────
-Write-Host "Downloading Element Web Client..." -ForegroundColor Cyan
+Write-Host "Downloading Element Web..." -ForegroundColor Cyan
 $ELEMENT_VERSION = "1.11.93"
 $ELEMENT_URL = "https://github.com/element-hq/element-web/releases/download/v$ELEMENT_VERSION/element-v$ELEMENT_VERSION.tar.gz"
 $tmp = "$env:TEMP\element-yappfy.tar.gz"
@@ -113,9 +144,6 @@ Write-Host "    yappfy Native Install Complete!" -ForegroundColor Green
 Write-Host "============================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "  Start:  $YAPPFY_HOME\start.bat"
-Write-Host "  Config: $YAPPFY_HOME\config"
-Write-Host ""
-Write-Host "  Double-click start.bat to launch!" -ForegroundColor Yellow
-Write-Host "  Open http://localhost:8009 in your browser" -ForegroundColor Yellow
+Write-Host "  Open:   http://localhost:8009"
 Write-Host ""
 pause

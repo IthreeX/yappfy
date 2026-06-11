@@ -30,30 +30,19 @@ echo -e "${GREEN}✓ Go $(go version | awk '{print $3}')${NC}"
 mkdir -p "$YAPPFY_HOME"/{dendrite,bridges,element,logs,config}
 
 # ── Install Dendrite (Matrix server, Go binary, SQLite) ──────────
-echo -e "\n${CYAN}📦 Installing Dendrite Matrix Server...${NC}"
-DENDRITE_VERSION="0.14.1"
-DENDRITE_URL=""
-case "$OS" in
-    Darwin)
-        ARCH=$(uname -m)
-        [ "$ARCH" = "arm64" ] && DENDRITE_ARCH="arm64" || DENDRITE_ARCH="amd64"
-        DENDRITE_URL="https://github.com/matrix-org/dendrite/releases/download/v${DENDRITE_VERSION}/dendrite-darwin-${DENDRITE_ARCH}"
-        ;;
-    Linux)
-        DENDRITE_URL="https://github.com/matrix-org/dendrite/releases/download/v${DENDRITE_VERSION}/dendrite-linux-amd64"
-        ;;
-    *)
-        echo "Building from source..."
-        go install github.com/matrix-org/dendrite/cmd/dendrite@v${DENDRITE_VERSION}
-        cp "$(go env GOPATH)/bin/dendrite" "$YAPPFY_HOME/dendrite/dendrite"
-        ;;
-esac
+echo -e "\n${CYAN}📦 Building Dendrite from source (1-2 min)...${NC}"
 
-if [ -n "$DENDRITE_URL" ]; then
-    curl -fsSL "$DENDRITE_URL" -o "$YAPPFY_HOME/dendrite/dendrite"
-    chmod +x "$YAPPFY_HOME/dendrite/dendrite"
+# Clone and build Dendrite
+if [ -d "$YAPPFY_HOME/dendrite-src" ]; then
+    (cd "$YAPPFY_HOME/dendrite-src" && git pull --ff-only) >/dev/null 2>&1
+else
+    git clone --depth 1 https://github.com/matrix-org/dendrite.git "$YAPPFY_HOME/dendrite-src" >/dev/null 2>&1
 fi
-
+(cd "$YAPPFY_HOME/dendrite-src" && go build -o "$YAPPFY_HOME/dendrite/dendrite" ./cmd/dendrite) || {
+    echo -e "${RED}Build failed. Make sure Go 1.21+ is installed.${NC}"
+    exit 1
+}
+echo -e "${GREEN}✓ Dendrite built successfully${NC}"
 # Generate default config with SQLite
 cd "$YAPPFY_HOME"
 ./dendrite/dendrite --config config/dendrite.yaml --generate-config >/dev/null 2>&1 || true
