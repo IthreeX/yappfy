@@ -1,6 +1,6 @@
 # yappfy Native Installer for Windows
 # Run: powershell -ExecutionPolicy Bypass -File install-native.ps1
-# Requires: Go installed from https://go.dev/dl/
+# Downloads pre-built binaries — nothing to compile.
 
 $ErrorActionPreference = "Stop"
 $YAPPFY_HOME = "$env:USERPROFILE\.yappfy"
@@ -11,17 +11,6 @@ Write-Host "    yappfy Native Installer for Windows" -ForegroundColor Cyan
 Write-Host "    No Docker. No Cloud. Your Rules." -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
-
-# ── Check Go ─────────────────────────────────────────────────────
-$go = Get-Command go -ErrorAction SilentlyContinue
-if (-not $go) {
-    Write-Host "ERROR: Go is not installed!" -ForegroundColor Red
-    Write-Host "Download from: https://go.dev/dl/" -ForegroundColor Yellow
-    Write-Host "After installing Go, restart PowerShell and run this script again."
-    pause
-    exit 1
-}
-Write-Host "[OK] Go found" -ForegroundColor Green
 
 # ── Check Python ─────────────────────────────────────────────────
 $py = Get-Command python -ErrorAction SilentlyContinue
