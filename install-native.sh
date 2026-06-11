@@ -2,14 +2,12 @@
 set -e
 
 # ── yappfy Native Installer ──────────────────────────────────────
-# Installs everything without Docker. Runs on macOS and Linux.
-# Downloads pre-built Dendrite binary from GitHub Releases.
+# No Docker. No Cloud. No compile. Your Rules.
 # ──────────────────────────────────────────────────────────────────
 
-RED='\033[0;31m'; GREEN='\033[0;32m'; CYAN='\033[0;36m'; NC='\033[0m'
+GREEN='\033[0;32m'; CYAN='\033[0;36m'; NC='\033[0m'
 YAPPFY_HOME="${YAPPFY_HOME:-$HOME/.yappfy}"
 OS="$(uname -s)"
-ARCH="amd64"
 
 echo -e "${CYAN}"
 echo "╔══════════════════════════════════════════╗"
@@ -18,91 +16,114 @@ echo "║   No Docker. No Cloud. Your Rules.      ║"
 echo "╚══════════════════════════════════════════╝"
 echo -e "${NC}"
 
-# ── Create directories ───────────────────────────────────────────
-mkdir -p "$YAPPFY_HOME"/{dendrite,element,logs,config}
+mkdir -p "$YAPPFY_HOME"/{dendrite,element,config}
 
-# ── Download pre-built Dendrite binary ───────────────────────────
+# ── Download Dendrite ────────────────────────────────────────────
 echo -e "\n${CYAN}📦 Downloading Dendrite Matrix Server...${NC}"
-DENDRITE_VERSION="v0.1.0"
 case "$OS" in
-    Darwin) DENDRITE_FILE="dendrite-darwin-${ARCH}" ;;
-    Linux)  DENDRITE_FILE="dendrite-linux-${ARCH}" ;;
-    *)      echo -e "${RED}Unsupported OS: $OS${NC}"; exit 1 ;;
+    Darwin) FILE="dendrite-darwin-amd64" ;;
+    Linux)  FILE="dendrite-linux-amd64" ;;
 esac
-
-DENDRITE_URL="https://github.com/IthreeX/yappfy/releases/download/${DENDRITE_VERSION}/${DENDRITE_FILE}"
-curl -fsSL "$DENDRITE_URL" -o "$YAPPFY_HOME/dendrite/dendrite"
+curl -fsSL "https://github.com/IthreeX/yappfy/releases/download/v0.1.0/${FILE}" -o "$YAPPFY_HOME/dendrite/dendrite"
 chmod +x "$YAPPFY_HOME/dendrite/dendrite"
 echo -e "${GREEN}✓ Dendrite installed${NC}"
 
-# ── Generate config ──────────────────────────────────────────────
-cd "$YAPPFY_HOME"
-./dendrite/dendrite --config config/dendrite.yaml --generate-config >/dev/null 2>&1 || true
+# ── Generate signing key ─────────────────────────────────────────
+python3 -c "
+import os, base64
+key = base64.b64encode(os.urandom(32)).decode()
+with open('$YAPPFY_HOME/config/signing.key', 'w') as f:
+    f.write('ed25519 ' + key)
+"
 
-sed -i.bak 's/connection_string:.*/connection_string: file:yappfy.db?_journal_mode=WAL/' config/dendrite.yaml 2>/dev/null || true
-sed -i.bak 's/server_name:.*/server_name: localhost/' config/dendrite.yaml 2>/dev/null || true
-rm -f config/dendrite.yaml.bak
+# ── Write config ─────────────────────────────────────────────────
+KEY=$(cat "$YAPPFY_HOME/config/signing.key")
+cat > "$YAPPFY_HOME/config/dendrite.yaml" << CONFIGEND
+version: 2
+global:
+  server_name: localhost
+  private_key: ${KEY}
+  disable_federation: true
+database:
+  connection_string: file:${YAPPFY_HOME}/yappfy.db?_journal_mode=WAL
+  max_open_conns: 10
+app_service_api:
+  listen: http://127.0.0.1:7777
+  internal_api:
+    connect: http://127.0.0.1:7777
+client_api:
+  listen: http://127.0.0.1:7771
+  internal_api:
+    connect: http://127.0.0.1:7771
+  registration_disabled: false
+federation_api:
+  listen: http://127.0.0.1:7772
+  internal_api:
+    connect: http://127.0.0.1:7772
+key_server:
+  internal_api:
+    connect: http://127.0.0.1:7779
+media_api:
+  listen: http://127.0.0.1:7774
+  internal_api:
+    connect: http://127.0.0.1:7774
+  database:
+    connection_string: file:${YAPPFY_HOME}/yappfy-media.db?_journal_mode=WAL
+room_server:
+  internal_api:
+    connect: http://127.0.0.1:7770
+  database:
+    connection_string: file:${YAPPFY_HOME}/yappfy-rooms.db?_journal_mode=WAL
+sync_api:
+  listen: http://127.0.0.1:7773
+  internal_api:
+    connect: http://127.0.0.1:7773
+  database:
+    connection_string: file:${YAPPFY_HOME}/yappfy-sync.db?_journal_mode=WAL
+user_api:
+  internal_api:
+    connect: http://127.0.0.1:7781
+  account_database:
+    connection_string: file:${YAPPFY_HOME}/yappfy-accounts.db?_journal_mode=WAL
+  device_database:
+    connection_string: file:${YAPPFY_HOME}/yappfy-devices.db?_journal_mode=WAL
+logging:
+  - type: std
+    level: warn
+cache:
+  max_size_estimated: 100m
+  max_age: 1h
+CONFIGEND
 
 echo -e "${GREEN}✓ Config ready${NC}"
 
 # ── Install Element Web ──────────────────────────────────────────
 echo -e "\n${CYAN}📦 Downloading Element Web...${NC}"
-ELEMENT_VERSION="1.11.93"
-curl -fsSL "https://github.com/element-hq/element-web/releases/download/v${ELEMENT_VERSION}/element-v${ELEMENT_VERSION}.tar.gz" \
+curl -fsSL "https://github.com/element-hq/element-web/releases/download/v1.11.93/element-v1.11.93.tar.gz" \
     | tar xz -C "$YAPPFY_HOME/element/"
-
 cat > "$YAPPFY_HOME/element/config.json" << 'EOF'
-{
-    "default_server_config": {
-        "m.homeserver": {"base_url": "http://localhost:8008"}
-    },
-    "brand": "yappfy",
-    "disable_guests": true,
-    "disable_login_language_selector": false,
-    "showLabsSettings": false,
-    "default_federate": false
-}
+{"default_server_config":{"m.homeserver":{"base_url":"http://localhost:8008"}},"brand":"yappfy","disable_guests":true,"showLabsSettings":false,"default_federate":false}
 EOF
-echo -e "${GREEN}✓ Element Web ${ELEMENT_VERSION} installed${NC}"
+echo -e "${GREEN}✓ Element Web installed${NC}"
 
 # ── Create start script ──────────────────────────────────────────
-cat > "$YAPPFY_HOME/start.sh" << 'STARTSCRIPT'
+cat > "$YAPPFY_HOME/start.sh" << 'START'
 #!/usr/bin/env bash
-YAPPFY_HOME="${YAPPFY_HOME:-$HOME/.yappfy}"
-cd "$YAPPFY_HOME"
-
-echo "🚀 Starting yappfy..."
-echo ""
-echo "  Matrix Server: http://localhost:8008"
-echo "  Element Web:   http://localhost:8009"
-echo ""
-echo "Press Ctrl+C to stop all services."
-
-./dendrite/dendrite --config config/dendrite.yaml --tls-cert /dev/null --tls-key /dev/null &
-DENDRITE_PID=$!
-
+H="${YAPPFY_HOME:-$HOME/.yappfy}"
+cd "$H"
+echo "🚀 yappfy — http://localhost:8009"
+"./dendrite/dendrite" --config config/dendrite.yaml --http-bind-address ":8008" --tls-cert /dev/null --tls-key /dev/null &
 sleep 3
-
-if command -v python3 >/dev/null 2>&1; then
-    cd element && python3 -m http.server 8009 --bind 127.0.0.1 &
-    ELEMENT_PID=$!
-    cd "$YAPPFY_HOME"
-fi
-
-echo ""
-echo -e "\033[0;32m✅ yappfy is running!\033[0m"
-echo "   Open: http://localhost:8009"
-
-trap "kill $DENDRITE_PID $ELEMENT_PID 2>/dev/null; exit" INT TERM
+cd element && python3 -m http.server 8009 --bind 127.0.0.1 &
+cd "$H"
+echo "✅ Running. Ctrl+C to stop."
+trap "kill 0" INT TERM
 wait
-STARTSCRIPT
+START
 chmod +x "$YAPPFY_HOME/start.sh"
 
-# ── Summary ──────────────────────────────────────────────────────
 echo ""
 echo -e "${GREEN}╔══════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║     ✅ yappfy Native Install Complete    ║${NC}"
+echo -e "${GREEN}║     ✅ yappfy Install Complete!         ║${NC}"
 echo -e "${GREEN}╚══════════════════════════════════════════╝${NC}"
-echo ""
-echo "  Start:  $YAPPFY_HOME/start.sh"
-echo "  Open:   http://localhost:8009"
+echo "  $YAPPFY_HOME/start.sh  →  http://localhost:8009"
