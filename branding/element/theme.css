@@ -1,0 +1,71 @@
+/* ╔═══════════════════════════════════════╗
+   ║  yappfy Theme — Deine Farben        ║
+   ╚═══════════════════════════════════════╝ */
+
+:root {
+    --yappfy-purple: #7C3AED;
+    --yappfy-pink: #EC4899;
+    --yappfy-dark: #0F0A1A;
+    --yappfy-surface: #1A1228;
+    --yappfy-text: #F3F0FF;
+    --yappfy-muted: #8B7AA8;
+}
+
+/* ─── Sidebar ─── */
+.mx_LeftPanel {
+    background: var(--yappfy-dark) !important;
+    border-right: 1px solid rgba(124, 58, 237, 0.2) !important;
+}
+
+/* ─── Room Header ─── */
+.mx_RoomHeader {
+    background: linear-gradient(135deg, var(--yappfy-dark), var(--yappfy-surface)) !important;
+    border-bottom: 1px solid rgba(124, 58, 237, 0.3) !important;
+}
+
+/* ─── Message Bubbles ─── */
+.mx_EventTile[data-self="true"] .mx_EventTile_line {
+    background: linear-gradient(135deg, var(--yappfy-purple), var(--yappfy-pink)) !important;
+    border-radius: 12px !important;
+    color: white !important;
+}
+
+.mx_EventTile:not([data-self="true"]) .mx_EventTile_line {
+    background: var(--yappfy-surface) !important;
+    border-radius: 12px !important;
+}
+
+/* ─── Buttons ─── */
+.mx_AccessibleButton_kind_primary {
+    background: linear-gradient(135deg, var(--yappfy-purple), var(--yappfy-pink)) !important;
+    border-radius: 8px !important;
+}
+
+/* ─── Input ─── */
+.mx_BasicMessageComposer {
+    background: var(--yappfy-dark) !important;
+    border-top: 1px solid rgba(124, 58, 237, 0.2) !important;
+}
+
+/* ─── Badge (Bridge-Indikator) ─── */
+.yappfy-bridge-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-left: 4px;
+}
+.yappfy-viber   { background: #7C3AED; color: white; }
+.yappfy-telegram { background: #0088CC; color: white; }
+.yappfy-whatsapp { background: #25D366; color: white; }
+
+/* ─── Welcome Page ─── */
+.mx_Welcome {
+    background: linear-gradient(180deg, var(--yappfy-dark), var(--yappfy-surface)) !important;
+}
+
+.mx_Welcome_logo {
+    filter: drop-shadow(0 0 20px rgba(124, 58, 237, 0.5));
+}

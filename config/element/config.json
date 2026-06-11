@@ -1,0 +1,25 @@
+{
+    "default_server_config": {
+        "m.homeserver": {
+            "base_url": "http://synapse:8008",
+            "server_name": "${DOMAIN}"
+        }
+    },
+    "brand": "yappfy",
+    "branding": {
+        "welcomeBackgroundUrl": "themes/yappfy/bg.svg",
+        "welcomeLogoUrl": "themes/yappfy/logo.svg"
+    },
+    "enable_welcome_page": true,
+    "disable_guests": false,
+    "disable_login_language_selector": false,
+    "disable_3pid_login": false,
+    "features": {
+        "feature_video_rooms": true,
+        "feature_element_call_video_rooms": false
+    },
+    "default_country_code": "DE",
+    "room_directory": {
+        "servers": ["${DOMAIN}"]
+    }
+}
