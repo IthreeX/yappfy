@@ -96,4 +96,4 @@ Die Bridges (mautrix-*) stehen unter ihren eigenen Lizenzen (Apache 2.0 / AGPL-3
 
 ---
 
-Made with ❤️ in Germany.
+Made with ❤️ in Austria.
