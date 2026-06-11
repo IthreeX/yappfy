@@ -4,6 +4,7 @@
 
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-brightgreen)](https://docs.docker.com/)
+[![Matrix](https://img.shields.io/badge/Matrix-000000?style=flat&logo=matrix&logoColor=white)](https://matrix.org)
 
 ---
 
@@ -11,9 +12,24 @@
 
 yappfy unifies **all your messengers** into **one client**. No cloud service, no data sharing — everything runs on **your server**.
 
-| 💬 WhatsApp | 📱 Signal | ✈️ Telegram | 📞 Viber | 💼 Slack | 🎮 Discord |
-| 📧 Email | 🔵 Messenger | 📷 Instagram | 🍎 iMessage | 🟢 WeChat | 🟡 Snapchat |
-| 🟣 Teams | 🏢 Google Chat | 💬 SMS | 🐦 Twitter/X | | |
+[![WhatsApp](https://img.shields.io/badge/WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](#)
+[![Signal](https://img.shields.io/badge/Signal-3A76F0?style=for-the-badge&logo=signal&logoColor=white)](#)
+[![Telegram](https://img.shields.io/badge/Telegram-26A5E4?style=for-the-badge&logo=telegram&logoColor=white)](#)
+[![Viber](https://img.shields.io/badge/Viber-7360F2?style=for-the-badge&logo=viber&logoColor=white)](#)
+[![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)](#)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white)](#)
+[![Email](https://img.shields.io/badge/Email-EA4335?style=for-the-badge&logo=gmail&logoColor=white)](#)
+[![Messenger](https://img.shields.io/badge/Messenger-0084FF?style=for-the-badge&logo=messenger&logoColor=white)](#)
+[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](#)
+[![iMessage](https://img.shields.io/badge/iMessage-34D399?style=for-the-badge&logo=apple&logoColor=white)](#)
+[![WeChat](https://img.shields.io/badge/WeChat-07C160?style=for-the-badge&logo=wechat&logoColor=white)](#)
+[![Snapchat](https://img.shields.io/badge/Snapchat-FFFC00?style=for-the-badge&logo=snapchat&logoColor=black)](#)
+[![Teams](https://img.shields.io/badge/Teams-6264A7?style=for-the-badge&logo=microsoftteams&logoColor=white)](#)
+[![Google Chat](https://img.shields.io/badge/Google_Chat-4285F4?style=for-the-badge&logo=googlechat&logoColor=white)](#)
+[![SMS](https://img.shields.io/badge/SMS-8888A0?style=for-the-badge&logo=android&logoColor=white)](#)
+[![Twitter/X](https://img.shields.io/badge/X-000000?style=for-the-badge&logo=x&logoColor=white)](#)
+
+---
 
 ```
 ┌────────────────────────────────────────────────┐
