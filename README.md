@@ -5,8 +5,6 @@
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue)](LICENSE)
 [![Docker](https://img.shields.io/badge/docker-ready-brightgreen)](https://docs.docker.com/)
 
-> 🇩🇪 [Deutsche Version unten](#yappfy--deine-chats-dein-server-deine-regeln)
-
 ---
 
 ## What is yappfy?
@@ -116,31 +114,5 @@ yappfy is **AGPL-3.0** — you may use, modify, and redistribute it. Changes mus
 The bridges (mautrix-*) are under their respective licenses (Apache 2.0 / AGPL-3.0).
 
 ---
-
-Made with ❤️ in Austria.
-
----
-
-## yappfy — Deine Chats. Dein Server. Deine Regeln.
-
-**Alle Messenger in einer Oberfläche. Self-hosted. Open Source. Kostenlos.**
-
-yappfy vereint **alle deine Messenger** in **einem Client**. Kein Cloud-Dienst, keine Datenweitergabe — alles läuft auf **deinem Server**.
-
-16+ Messenger: WhatsApp, Signal, Telegram, Viber, Slack, Discord, Facebook Messenger, Instagram, iMessage, WeChat, Snapchat, Teams, Google Chat, SMS, Twitter/X, E-Mail.
-
-### Quick Start
-
-```bash
-git clone https://github.com/IthreeX/yappfy.git
-cd yappfy
-chmod +x setup.sh
-./setup.sh
-open http://localhost:8080
-```
-
-### Lizenz
-
-yappfy ist **AGPL-3.0** — du darfst es nutzen, verändern und weitergeben. Änderungen müssen unter der gleichen Lizenz veröffentlicht werden.
 
 Made with ❤️ in Austria.
