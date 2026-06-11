@@ -1,6 +1,6 @@
 # yappfy Native Installer for Windows
 # Run: powershell -ExecutionPolicy Bypass -File install-native.ps1
-# Builds Dendrite from source — one-time Go install needed.
+# Downloads pre-built binary — nothing to install or compile.
 
 $ErrorActionPreference = "Stop"
 $YAPPFY_HOME = "$env:USERPROFILE\.yappfy"
@@ -12,32 +12,13 @@ Write-Host "    No Docker. No Cloud. Your Rules." -ForegroundColor Cyan
 Write-Host "============================================" -ForegroundColor Cyan
 Write-Host ""
 
-# ── Install Go (if missing) ──────────────────────────────────────
-$go = Get-Command go -ErrorAction SilentlyContinue
-if (-not $go) {
-    Write-Host "Go is not installed. Installing via winget..." -ForegroundColor Yellow
-    
-    $winget = Get-Command winget -ErrorAction SilentlyContinue
-    if ($winget) {
-        winget install GoLang.Go --silent --accept-package-agreements
-        Write-Host "[OK] Go installed! Restart PowerShell and run this script again." -ForegroundColor Green
-    } else {
-        Write-Host "Please install Go manually:" -ForegroundColor Red
-        Write-Host "  1. Download from https://go.dev/dl/" -ForegroundColor Yellow
-        Write-Host "  2. Run the installer (default settings are fine)" -ForegroundColor Yellow
-        Write-Host "  3. Restart PowerShell and run this script again" -ForegroundColor Yellow
-    }
-    pause
-    exit 0
-}
-Write-Host "[OK] Go $(& go version)" -ForegroundColor Green
-
 # ── Check Python ─────────────────────────────────────────────────
 $py = Get-Command python -ErrorAction SilentlyContinue
 if (-not $py) { $py = Get-Command python3 -ErrorAction SilentlyContinue }
 if (-not $py) {
     Write-Host "WARNING: Python not found. Element Web needs it." -ForegroundColor Yellow
     Write-Host "Install from https://python.org (check 'Add Python to PATH')" -ForegroundColor Yellow
+    Write-Host ""
 }
 
 # ── Create directories ───────────────────────────────────────────
@@ -46,32 +27,18 @@ foreach ($d in $dirs) {
     New-Item -ItemType Directory -Force -Path "$YAPPFY_HOME\$d" | Out-Null
 }
 
-# ── Build Dendrite from source ───────────────────────────────────
-Write-Host "Building Dendrite from source (2-3 min)..." -ForegroundColor Cyan
-Write-Host "  This compiles the Matrix server for your machine." -ForegroundColor Cyan
+# ── Download pre-built Dendrite binary ───────────────────────────
+Write-Host "Downloading Dendrite Matrix Server (40 MB)..." -ForegroundColor Cyan
+$DENDRITE_URL = "https://github.com/IthreeX/yappfy/releases/download/v0.1.0/dendrite-windows-amd64.exe"
+$DENDRITE_PATH = "$YAPPFY_HOME\dendrite\dendrite.exe"
 
-Push-Location $YAPPFY_HOME
-
-# Clone or update Dendrite
-if (Test-Path "dendrite-src") {
-    Push-Location dendrite-src
-    git pull --ff-only 2>$null
-    Pop-Location
-} else {
-    git clone --depth 1 https://github.com/matrix-org/dendrite.git dendrite-src 2>&1 | Out-Null
-}
-
-Push-Location dendrite-src
-go build -o "$YAPPFY_HOME\dendrite\dendrite.exe" ./cmd/dendrite
-Pop-Location
-Pop-Location
-
-Write-Host "[OK] Dendrite built successfully" -ForegroundColor Green
+Invoke-WebRequest -Uri $DENDRITE_URL -OutFile $DENDRITE_PATH
+Write-Host "[OK] Dendrite installed" -ForegroundColor Green
 
 # ── Generate config ──────────────────────────────────────────────
 Write-Host "Generating config..." -ForegroundColor Cyan
 Push-Location $YAPPFY_HOME
-& "$YAPPFY_HOME\dendrite\dendrite.exe" --config config\dendrite.yaml --generate-config 2>$null
+& $DENDRITE_PATH --config config\dendrite.yaml --generate-config 2>$null
 
 $config = Get-Content config\dendrite.yaml -Raw
 $config = $config -replace 'connection_string:.*', 'connection_string: file:yappfy.db?_journal_mode=WAL'
