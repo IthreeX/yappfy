@@ -1,0 +1,10 @@
+# yappfy — Docker Ignore
+.git
+.gitignore
+*.md
+docs/
+branding/
+.env.example
+README.md
+LICENSE
+.DS_Store
